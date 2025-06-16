@@ -29,7 +29,7 @@ locals {
     },
     {
       name  = "POINT_MYSQL_HOST"
-      value = "3.113.29.91"
+      value = "18.179.112.213"
     },
     {
       name  = "POINT_MYSQL_MAX_IDLE_CONNECTIONS"
@@ -102,9 +102,15 @@ module "db" {
   aws_account_id             = var.aws_account_id
 }
 
+module "log" {
+  source            = "github.com/GitEngHar/TfSnsAuthenticationApp//modules/log?ref=master"
+  log_save_duration = 1
+}
+
 module "ecs" {
   source                = "github.com/GitEngHar/TfSnsAuthenticationApp//modules/service-app?ref=master"
   task_def_family_name  = "PointServiceAppDef"
+  ecs_log_group_name    = module.log.log_name
   container_environment = local.app_container_enviroment
   arn_ecs_app_listener  = module.alb.arn_ecs_app_listener
   id_of_ecs_cluster     = module.cluster.cluster_id
