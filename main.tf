@@ -85,9 +85,10 @@ module "alb" {
 }
 
 module "cluster" {
-  source          = "github.com/GitEngHar/TfSnsAuthenticationApp//modules/cluster?ref=master"
-  name_of_cluster = "PointServiceCluster"
-  vpc_id          = module.network.vpc_id
+  source                      = "github.com/GitEngHar/TfSnsAuthenticationApp//modules/cluster?ref=master"
+  name_of_cluster             = "PointServiceCluster"
+  vpc_id                      = module.network.vpc_id
+  name_of_discovery_namespace = "pointservice.internal"
 }
 
 module "db" {
@@ -99,7 +100,7 @@ module "db" {
   name_of_container_image    = "${var.aws_account_id}.dkr.ecr.ap-northeast-1.amazonaws.com/point-service/db:latest"
   container_environment      = local.db_container_environment
   aws_account_id             = var.aws_account_id
-  dns_service_connect        = module.cluster.dns_service_connect
+  id_of_service_discovery    = module.cluster.id_of_service_discovery
 }
 
 module "log" {
@@ -122,7 +123,7 @@ module "ecs" {
   sg_id_for_ecs         = module.security_group.sg_id_for_ecs
   container_image_name  = "point-service/app:latest"
   arn_lb_target_group   = module.alb.arn_lb_target_group
-  depends_on = [module.db]
+  depends_on            = [module.db]
 }
 
 
