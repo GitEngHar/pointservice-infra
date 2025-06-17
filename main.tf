@@ -29,7 +29,7 @@ locals {
     },
     {
       name  = "POINT_MYSQL_HOST"
-      value = "18.179.112.213"
+      value = "mysql.pointservice.internal"
     },
     {
       name  = "POINT_MYSQL_MAX_IDLE_CONNECTIONS"
@@ -87,19 +87,19 @@ module "alb" {
 module "cluster" {
   source          = "github.com/GitEngHar/TfSnsAuthenticationApp//modules/cluster?ref=master"
   name_of_cluster = "PointServiceCluster"
+  vpc_id          = module.network.vpc_id
 }
 
 module "db" {
   source                     = "github.com/GitEngHar/TfSnsAuthenticationApp//modules/service-db?ref=master"
   task_def_family_name       = "PointServiceDBDef"
-  vpc_id                     = module.network.vpc_id
-  host_name_for_db           = "pointservice.local"
   id-ecs-cluster             = module.cluster.cluster_id
   id-private                 = module.network.public-a_id
   sg_id_for_connect_to_mysql = module.security_group.sg_id_for_connect_to_mysql
   name_of_container_image    = "${var.aws_account_id}.dkr.ecr.ap-northeast-1.amazonaws.com/point-service/db:latest"
   container_environment      = local.db_container_environment
   aws_account_id             = var.aws_account_id
+  dns_service_connect        = module.cluster.dns_service_connect
 }
 
 module "log" {
@@ -122,6 +122,7 @@ module "ecs" {
   sg_id_for_ecs         = module.security_group.sg_id_for_ecs
   container_image_name  = "point-service/app:latest"
   arn_lb_target_group   = module.alb.arn_lb_target_group
+  depends_on = [module.db]
 }
 
 
