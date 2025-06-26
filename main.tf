@@ -62,45 +62,45 @@ provider "aws" {
 module "network" {
   source                = "github.com/GitEngHar/TfSnsAuthenticationApp//modules/network?ref=master"
   vpc_cider_block       = "10.0.0.0/16"
-  public-a_cider_block  = "10.0.1.0/24"
-  public-c_cider_block  = "10.0.2.0/24"
-  private-a_cider_block = "10.0.128.0/24"
+  public_a_cider_block  = "10.0.1.0/24"
+  public_c_cider_block  = "10.0.2.0/24"
+  private_a_cider_block = "10.0.128.0/24"
 }
 
 module "security_group" {
   source        = "github.com/GitEngHar/TfSnsAuthenticationApp//modules/security_group?ref=master"
   vpc_id        = module.network.vpc_id
-  app-to-port   = "1323"
-  app-from-port = "1323"
+  app_ingress_to_port   = "1323"
+  app_ingress_from_port = "1323"
 }
 
 module "alb" {
   source        = "github.com/GitEngHar/TfSnsAuthenticationApp//modules/alb?ref=master"
-  sg_id_for_alb = module.security_group.sg_id_for_alb
+  alb_access_security_group_id = module.security_group.alb_access_security_group_id
   vpc_id        = module.network.vpc_id
-  app-to-port   = "1323"
-  app-from-port = "1323"
-  public-a_id   = module.network.public-a_id
-  public-c_id   = module.network.public-c_id
+  app_ingress_to_port   = "1323"
+  app_ingress_from_port = "1323"
+  public_a_subnet_id   = module.network.public_a_id
+  public_c_subnet_id   = module.network.public_c_id
 }
 
 module "cluster" {
   source                      = "github.com/GitEngHar/TfSnsAuthenticationApp//modules/cluster?ref=master"
-  name_of_cluster             = "PointServiceCluster"
+  ecs_cluster_name             = "PointServiceCluster"
   vpc_id                      = module.network.vpc_id
-  name_of_discovery_namespace = "pointservice.internal"
+  esc_service_discovery_namespace = "pointservice.internal"
 }
 
 module "db" {
   source                     = "github.com/GitEngHar/TfSnsAuthenticationApp//modules/service-db?ref=master"
-  task_def_family_name       = "PointServiceDBDef"
-  id-ecs-cluster             = module.cluster.cluster_id
-  id-private                 = module.network.public-a_id
-  sg_id_for_connect_to_mysql = module.security_group.sg_id_for_connect_to_mysql
-  name_of_container_image    = "${var.aws_account_id}.dkr.ecr.ap-northeast-1.amazonaws.com/point-service/db:latest"
+  task_definition_family       = "PointServiceDBDef"
+  ecs_cluster_id             = module.cluster.ecs_cluster_id
+  private_subnet_id                = module.network.public_a_id
+  mysql_access_security_group_id = module.security_group.mysql_access_security_group_id
+  container_image    = "${var.aws_account_id}.dkr.ecr.ap-northeast-1.amazonaws.com/point-service/db:latest"
   container_environment      = local.db_container_environment
   aws_account_id             = var.aws_account_id
-  id_of_service_discovery    = module.cluster.id_of_service_discovery
+  service_discovery_id    = module.cluster.ecs_service_discovery_id
 }
 
 module "log" {
@@ -110,20 +110,21 @@ module "log" {
 
 module "ecs" {
   source                = "github.com/GitEngHar/TfSnsAuthenticationApp//modules/service-app?ref=master"
-  task_def_family_name  = "PointServiceAppDef"
-  ecs_log_group_name    = module.log.log_name
+  task_definition_family  = "PointServiceAppDef"
+  ecs_service_log_group_name    = module.log.log_name
   container_environment = local.app_container_enviroment
-  arn_ecs_app_listener  = module.alb.arn_ecs_app_listener
-  id_of_ecs_cluster     = module.cluster.cluster_id
-  name_of_service       = "PointService"
-  name_of_container     = "point-service"
-  public-a_id           = module.network.public-a_id
-  app-to-port           = "1323"
+  ecs_service_listener  = module.alb.alb_ecs_service_listener_arn
+  ecs_cluster_id     = module.cluster.ecs_cluster_id
+  ecs_service_name       = "PointService"
+  container_name     = "point-service"
+  public_a_subnet_id           = module.network.public_a_id
+  container_port           = "1323"
   aws_account_id        = var.aws_account_id
-  sg_id_for_ecs         = module.security_group.sg_id_for_ecs
-  container_image_name  = "point-service/app:latest"
-  arn_lb_target_group   = module.alb.arn_lb_target_group
+  app_access_security_group_id         = module.security_group.ecs_service_access_security_group_id
+  container_image  = "point-service/app:latest"
+  lb_target_group_arn   = module.alb.alb_ecs_service_listener_arn
   depends_on            = [module.db]
+  service_discovery_id = module.cluster.ecs_service_discovery_id
 }
 
 
