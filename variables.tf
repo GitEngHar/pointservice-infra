@@ -22,3 +22,11 @@ variable "my_global_ip" {
 variable "line_auth_client_id" {
   type = string
 }
+
+variable "lambda_exec_role_arn" {
+  type = string
+}
+
+variable "lambda_image_uri" {
+  type = string
+}
