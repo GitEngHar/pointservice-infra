@@ -1,5 +1,11 @@
 # Hi There 👋
 
+## System Architecture
+TBD
+
+## Deploy process
+TBD
+
 ## 🚀 Exec
 
 - point add & user create
