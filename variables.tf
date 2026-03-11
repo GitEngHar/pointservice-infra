@@ -1,16 +1,15 @@
-# variable "my_global_ip" {
-#   description = "MY ACCESS IP"
-#   type        = string
-# }
-#
-# variable "line_auth_client_id" {
-#   type = string
-# }
-#
-# variable "lambda_exec_role_arn" {
-#   type = string
-# }
-#
-# variable "lambda_image_uri" {
-#   type = string
-# }
+variable "my_global_ip" {
+  sensitive = true
+}
+
+variable "line_auth_client_id" {
+  sensitive = true
+}
+
+variable "lambda_exec_role_arn" {
+  sensitive = true
+}
+
+variable "lambda_image_uri" {
+  sensitive = true
+}

@@ -45,3 +45,8 @@ jobs:
       - name: Terraform Apply
         if: github.event.inputs.command == 'apply'
         run: terraform apply -auto-approve
+env:
+  TF_VAR_my_global_ip: ${{ secrets.MY_GLOBAL_IP }}
+  TF_VAR_line_auth_client_id: ${{ secrets.LINE_AUTH_CLIENT_ID }}
+  TF_VAR_lambda_exec_role_arn: ${{ secrets.LAMBDA_EXEC_ROLE_ARN }}
+  TF_VAR_lambda_image_uri: ${{ secrets.LAMBDA_IMAGE_URI }}
