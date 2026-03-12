@@ -1,32 +1,15 @@
-## provider
-variable "aws_access_key" {
-  description = "IAM ACCESS KEY"
-  type        = string
-}
-
-variable "aws_secret_key" {
-  description = "IAM SECRET KEY"
-  type        = string
-}
-
-variable "aws_account_id" {
-  description = "AWS Account ID"
-  type        = string
-}
-
 variable "my_global_ip" {
-  description = "MY ACCESS IP"
-  type        = string
+  sensitive = true
 }
 
 variable "line_auth_client_id" {
-  type = string
+  sensitive = true
 }
 
 variable "lambda_exec_role_arn" {
-  type = string
+  sensitive = true
 }
 
 variable "lambda_image_uri" {
-  type = string
+  sensitive = true
 }

@@ -6,6 +6,7 @@ terraform {
     }
   }
 }
+data "aws_caller_identity" "current" {}
 
 locals {
   db_container_environment = [
@@ -55,8 +56,6 @@ locals {
 
 provider "aws" {
   region     = "ap-northeast-1"
-  access_key = var.aws_access_key
-  secret_key = var.aws_secret_key
 }
 
 module "network" {
@@ -97,9 +96,9 @@ module "db" {
   ecs_cluster_id                 = module.cluster.ecs_cluster_id
   private_subnet_id              = module.network.public_a_id
   mysql_access_security_group_id = module.security_group.mysql_access_security_group_id
-  container_image                = "${var.aws_account_id}.dkr.ecr.ap-northeast-1.amazonaws.com/point-service/db:latest"
+  container_image                = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-1.amazonaws.com/point-service/db:latest"
   container_environment          = local.db_container_environment
-  aws_account_id                 = var.aws_account_id
+  aws_account_id                 = data.aws_caller_identity.current.account_id
   service_discovery_id           = module.cluster.ecs_service_discovery_id
 }
 
@@ -119,7 +118,7 @@ module "ecs" {
   container_name               = "point-service"
   public_a_subnet_id           = module.network.public_a_id
   container_port               = "1323"
-  aws_account_id               = var.aws_account_id
+  aws_account_id               = data.aws_caller_identity.current.account_id
   app_access_security_group_id = module.security_group.ecs_service_access_security_group_id
   container_image              = "point-service/app:latest"
   lb_target_group_arn          = module.alb.alb_ecs_service_target_group_id
