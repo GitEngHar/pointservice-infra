@@ -38,7 +38,7 @@ jobs:
           terraform plan -out tfplan
           terraform show -json tfplan > plan.json
       - name: summarize terraform plan
-        uses: GitEngHar/analyze_plan@v1
+        uses: GitEngHar/analyze_plan@v1.1
         with:
           plan-path: plan.json
 
