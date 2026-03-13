@@ -33,11 +33,12 @@ jobs:
           aws-region: ap-northeast-1
       - name: Terraform Plan
         if: github.event.inputs.command == 'plan'
-        run: terraform init
+        run: | 
+          terraform init
           terraform plan -out tfplan
           terraform show -json tfplan > plan.json
       - name: summarize terraform plan
-        uses: GitEngHar/terraform-summary@v1
+        uses: GitEngHar/analyze_plan@v1.2.1
         with:
           plan-path: plan.json
 
